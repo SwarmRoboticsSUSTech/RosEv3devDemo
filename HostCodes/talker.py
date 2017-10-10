@@ -1,14 +1,14 @@
-#!/usr/bin/env python
+# python3
 import rospy
 from std_msgs.msg import String
-from getch import getch, pause
+import getch
 
 
 def talker():
     pub = rospy.Publisher('chatter', String, queue_size=10)
     rospy.init_node('talker', anonymous=True)
     while not rospy.is_shutdown():
-        key = getch()
+        key = getch.getch()
         hello_str = key + str(rospy.get_time())
         rospy.loginfo(hello_str)
         pub.publish(key)
