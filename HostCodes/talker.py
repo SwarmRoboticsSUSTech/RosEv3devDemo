@@ -5,7 +5,7 @@ import getch
 
 
 def talker():
-    pub = rospy.Publisher('chatter', String, queue_size=10)
+    pub = rospy.Publisher('chatter', String, queue_size=1)
     rospy.init_node('talker', anonymous=True)
     while not rospy.is_shutdown():
         key = getch.getch()
