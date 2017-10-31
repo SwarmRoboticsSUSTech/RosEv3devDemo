@@ -1,7 +1,8 @@
 #import rospy
 #from std_msgs.msg import String
 from ev3dev.ev3 import *
-#from time import sleep
+import random
+from time import sleep
 #import threading
 
 mB = LargeMotor('outB')
@@ -134,7 +135,7 @@ speed = 200
 #         elif distance_A <= 35 or distance_B <= 35:
 #             mB.stop()
 #             mC.stop()
-
+'''
 def seeker():
     while not ts.value():
         target = None
@@ -164,19 +165,22 @@ def seeker():
             mC.run_timed(time_sp=1000 * run_time_length, speed_sp=50)
             mB.wait_while('running')
             mC.wait_while('running') 
-
+'''
 def seeker_single():
     while not ts.value():
-        degree_ir = ir.value(2)
-        distance_ir = ir.value(3)
+        degree_ir = ir.value(6)
+        distance_ir = ir.value(7)
         distance = us.value()/10
         print('degreeA:' + str(degree_ir))
         print('distcaneA:' + str(distance_ir))
         print('distance:' + str(distance))
+
         if distance <= 20:
-            if degree_ir == 0 and distance_ir == 100:
+            if degree_ir == 0 and (distance_ir == 100 or distance_ir == -128):
+                
                 mB.run_to_rel_pos(position_sp=15, speed_sp=100)
                 mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
+                
             elif degree_ir < 0:
                 mB.run_to_rel_pos(position_sp=degree_ir, speed_sp=100)
                 mC.run_to_rel_pos(position_sp=-degree_ir, speed_sp=100)
@@ -184,10 +188,18 @@ def seeker_single():
                 mB.run_to_rel_pos(position_sp=degree_ir, speed_sp=100)
                 mC.run_to_rel_pos(position_sp=-degree_ir, speed_sp=100)
         elif distance > 20:
-            if degree_ir == 0 and distance_ir == 100:
+            if degree_ir == 0 and (distance_ir == 100 or distance_ir == -128):
+                # direction = random.randint(0, 1)
+                # if direction == 0:
                 mB.run_to_rel_pos(position_sp=15, speed_sp=100)
                 mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
-                print('???')
+                # elif direction == 1:
+                #     mB.run_to_rel_pos(position_sp=-15, speed_sp=100)
+                #     mC.run_to_rel_pos(position_sp=15, speed_sp=100)
+                run_time_random = random.randint(0, 3)
+                mB.run_forever(speed_sp=100)
+                mC.run_forever(speed_sp=100)
+                sleep(run_time_random)
             elif degree_ir < 0:
                 mB.run_to_rel_pos(position_sp=degree_ir, speed_sp=100)
                 mC.run_to_rel_pos(position_sp=-degree_ir, speed_sp=100)
@@ -197,7 +209,8 @@ def seeker_single():
             run_time_length = distance_ir / 100
             mB.run_forever(speed_sp=100)
             mC.run_forever(speed_sp=100)
-
+    mB.stop()
+    mC.stop()
 
 if __name__ == '__main__':
     # main()

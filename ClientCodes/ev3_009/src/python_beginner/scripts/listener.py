@@ -19,7 +19,7 @@ ir.mode = 'IR-SEEK'
 units = us.units
 #pub = rospy.Publisher('ev3_009_chatter', String, queue_size=1)
 speed = 200
-
+'''
 def f():
     # do something here ...
     # call f() again in 1 seconds
@@ -164,7 +164,7 @@ def seeker():
             mC.run_timed(time_sp=1000 * run_time_length, speed_sp=50)
             mB.wait_while('running')
             mC.wait_while('running') 
-
+'''
 def seeker_single():
     while not ts.value():
         degree_ir = ir.value(4)

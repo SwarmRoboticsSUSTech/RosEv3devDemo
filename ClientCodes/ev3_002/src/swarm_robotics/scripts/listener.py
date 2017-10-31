@@ -134,7 +134,7 @@ speed = 200
 #         elif distance_A <= 35 or distance_B <= 35:
 #             mB.stop()
 #             mC.stop()
-
+'''
 def seeker():
     while not ts.value():
         target = None
@@ -164,11 +164,11 @@ def seeker():
             mC.run_timed(time_sp=1000 * run_time_length, speed_sp=50)
             mB.wait_while('running')
             mC.wait_while('running') 
-
+'''
 def seeker_single():
     while not ts.value():
-        degree_ir = ir.value(6)
-        distance_ir = ir.value(7)
+        degree_ir = ir.value(0)
+        distance_ir = ir.value(1)
         distance = us.value()/10
         print('degreeA:' + str(degree_ir))
         print('distcaneA:' + str(distance_ir))
