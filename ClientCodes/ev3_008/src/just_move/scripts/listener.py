@@ -12,21 +12,15 @@ ts = TouchSensor()
 assert ts.connected, "Connect a touch sensor to any port"
 us.mode='US-DIST-CM'
 
-
-
 units = us.units
-
-speed = 100
 pub = rospy.Publisher('ev3_008_chatter', String, queue_size=1)
-
-
+speed = 50
 
 def f():
     # do something here ...
     # call f() again in 1 seconds
     publisher(pub, 'ev3_008', speed)
-    threading.Timer(2, f).start()
-
+    threading.Timer(5, f).start()
 
 def callback(data):
     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
@@ -34,7 +28,7 @@ def callback(data):
     control_forward(data.data)
     
 def main():
-    
+    # pub = rospy.Publisher('ev3_008_chatter', String, queue_size=1)
 
     # In ROS, nodes are uniquely named. If two nodes with the same
     # node are launched, the previous one is kicked off. The
@@ -46,8 +40,8 @@ def main():
     rospy.Subscriber("chatter", String, callback, queue_size=1)
     rospy.Subscriber("ev3_009_chatter", String, callback, queue_size=1)
     respect()
-    # publisher(pub, 'ev3_008', speed)
     # f()
+    # publisher(pub, 'ev3_008', speed)
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
 
@@ -92,12 +86,12 @@ def control_forward(move_command):
         mB.run_forever(speed_sp=speed)
         mC.run_forever(speed_sp=speed)
     elif move_command is 'a':
-        mB.run_timed(position_sp=45, speed_sp=-100, stop_action="hold")
+        mB.run_timed(position_sp=30, speed_sp=-100, stop_action="hold")
     elif move_command is 's':
         mB.run_forever(speed_sp=-speed)
         mC.run_forever(speed_sp=-speed)
     elif move_command is 'd':
-        mC.run_timed(position_sp=45, speed_sp=-100, stop_action="hold")
+        mC.run_timed(position_sp=30, speed_sp=-100, stop_action="hold")
     elif move_command is 'x':
         speed = 100
         mB.stop()
@@ -111,7 +105,6 @@ def control_forward(move_command):
         mB.run_forever(speed_sp=speed)
         mC.run_forever(speed_sp=speed)
     # Leds.set_color(Leds.LEFT, Leds.GREEN)  #set left led green before exiting
-
 
 if __name__ == '__main__':
     main()
