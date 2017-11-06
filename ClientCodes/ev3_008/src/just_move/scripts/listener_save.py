@@ -1,3 +1,8 @@
+'''
+通过ROS消息机制，在笔记本上运行一个节点程序，发送消息，机器人根据消息内容来做出
+不同的反应
+'''
+
 import rospy
 from std_msgs.msg import String
 from ev3dev.ev3 import *
@@ -16,11 +21,11 @@ units = us.units
 pub = rospy.Publisher('ev3_008_chatter', String, queue_size=1)
 speed = 50
 
-def f():
-    # do something here ...
-    # call f() again in 1 seconds
-    publisher(pub, 'ev3_008', speed)
-    threading.Timer(5, f).start()
+# def f():
+#     # do something here ...
+#     # call f() again in 1 seconds
+#     publisher(pub, 'ev3_008', speed)
+#     threading.Timer(5, f).start()
 
 def callback(data):
     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)

@@ -1,5 +1,5 @@
-#import rospy
-#from std_msgs.msg import String
+import rospy
+from std_msgs.msg import String
 from ev3dev.ev3 import *
 import random
 from time import sleep
@@ -211,6 +211,11 @@ def seeker_single():
             mC.run_forever(speed_sp=100)
     mB.stop()
     mC.stop()
+
+def random_walk():
+    '''
+    '''
+    pass
 
 if __name__ == '__main__':
     # main()
