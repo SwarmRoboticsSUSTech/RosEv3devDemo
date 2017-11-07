@@ -25,6 +25,9 @@ assert ir.connected, "Connect a single infrared sensor to any sensor port"
 ir.mode = 'IR-SEEK'
 
 units = us.units
+
+ir_select_list = [1, 2, 3, 4]
+node_name = 'ev3_00#_chatter'
 pub = rospy.Publisher('ev3_00#_chatter', String, queue_size=1)
 speed = 200
 
@@ -44,18 +47,25 @@ def main():
 
     rospy.Subscriber("chatter", String, callback, queue_size=1)
     rospy.Subscriber("ev3_008_chatter", String, callback, queue_size=1)
-    seeker()
+    seeker(node_name)
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
 
 
 def publisher(pub, node_name, speed):
     '''
-    publish its status informations
+    publish its status informations, speed
     '''
     status_str = 'speed: ' + str(speed)
     rospy.loginfo(status_str)
     pub.publish(node_name + "'status: " + status_str)
+
+def publisher_ir_info(pub, node_name, ir_id):
+    '''
+    publish its found ir id
+    '''
+    rospy.loginfo('I have find: ' + str(ir_id))
+    pub.publish(node_name + "I have find: " + str(ir_id))
 
 '''
 def control_forward(move_command):
@@ -151,8 +161,12 @@ def seeker():
             mB.wait_while('running')
             mC.wait_while('running') 
 '''
-def seeker():
+def seeker(node_name):
+    '''
+    node_name: node name of itself
+    '''
     flag = None
+    
     while not ts.value():
         if flag is None:
             # Lock only once
@@ -162,12 +176,16 @@ def seeker():
             degree_ir_channel4 = ir.value(6)
             if degree_ir_channel1 != 0:
                 flag = 1
+                publisher_ir_info(pub, node_name, flag)
             elif degree_ir_channel2 != 0:
                 flag = 2
+                publisher_ir_info(pub, node_name, flag)
             elif degree_ir_channel3 != 0:
                 flag = 3
+                publisher_ir_info(pub, node_name, flag)
             elif degree_ir_channel4 != 0:
                 flag = 4
+                publisher_ir_info(pub, node_name, flag)
 
 
         if flag == 1:
@@ -220,9 +238,11 @@ def seeker():
                 # mC.run_forever(speed_sp=100)
                 # sleep(run_time_random)
             elif degree_ir < 0:
+                # Found
                 mB.run_to_rel_pos(position_sp=degree_ir, speed_sp=100)
                 mC.run_to_rel_pos(position_sp=-degree_ir, speed_sp=100)
             elif degree_ir > 0:
+                # Found
                 mB.run_to_rel_pos(position_sp=degree_ir, speed_sp=100)
                 mC.run_to_rel_pos(position_sp=-degree_ir, speed_sp=100)
             # run_time_length = distance_ir / 100
@@ -231,9 +251,10 @@ def seeker():
     mB.stop()
     mC.stop()
 
-def random_walk(): # TODO
+def random_walk():
     '''
     random walk
+    TODO: random stop to wait
     '''
     mB.run_to_rel_pos(position_sp=15, speed_sp=100)
     mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
