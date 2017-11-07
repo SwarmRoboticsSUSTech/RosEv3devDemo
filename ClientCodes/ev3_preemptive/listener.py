@@ -27,13 +27,22 @@ ir.mode = 'IR-SEEK'
 units = us.units
 
 ir_select_list = [1, 2, 3, 4]
-node_name = 'ev3_00#_chatter'
+node_name = 'ev3_00#'
 pub = rospy.Publisher('ev3_00#_chatter', String, queue_size=1)
 speed = 200
 
+'''
+Kinds of messages:
+ - number: 1,2,3,4
+ - str: stop for wait
+'''
+
 def callback(data):
     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
-    publisher(pub, 'ev3_00#', speed)
+    if int(data.data) in [1, 2, 3, 4]:
+        ir_select_list.remove(int(data.data))
+    print('My ir_select_list is: ' + ir_select_list)
+    # publisher(pub, 'ev3_00#', speed)
     
 def main():
     # pub = rospy.Publisher('ev3_009_chatter', String, queue_size=1)
@@ -43,10 +52,10 @@ def main():
     # anonymous=True flag means that rospy will choose a unique
     # name for our 'listener' node so that multiple listeners can
     # run simultaneously.
-    rospy.init_node('ev3_00#', anonymous=True)
+    rospy.init_node(node_name, anonymous=True)
 
-    rospy.Subscriber("chatter", String, callback, queue_size=1)
-    rospy.Subscriber("ev3_008_chatter", String, callback, queue_size=1)
+    rospy.Subscriber("chatter", String, callback, queue_size=1)   # laptop node
+    rospy.Subscriber("ev3_008_chatter", String, callback, queue_size=1) # other robot node
     seeker(node_name)
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
@@ -65,7 +74,7 @@ def publisher_ir_info(pub, node_name, ir_id):
     publish its found ir id
     '''
     rospy.loginfo('I have find: ' + str(ir_id))
-    pub.publish(node_name + "I have find: " + str(ir_id))
+    pub.publish(str(ir_id))
 
 '''
 def control_forward(move_command):
@@ -174,18 +183,18 @@ def seeker(node_name):
             degree_ir_channel2 = ir.value(2)
             degree_ir_channel3 = ir.value(4)
             degree_ir_channel4 = ir.value(6)
-            if degree_ir_channel1 != 0:
+            if degree_ir_channel1 != 0 and (1 in ir_select_list):
                 flag = 1
-                publisher_ir_info(pub, node_name, flag)
-            elif degree_ir_channel2 != 0:
+                publisher_ir_info(pub, node_name + '_chatter', flag)
+            elif degree_ir_channel2 != 0 and (2 in ir_select_list):
                 flag = 2
-                publisher_ir_info(pub, node_name, flag)
-            elif degree_ir_channel3 != 0:
+                publisher_ir_info(pub, node_name + '_chatter', flag)
+            elif degree_ir_channel3 != 0 and (3 in ir_select_list):
                 flag = 3
-                publisher_ir_info(pub, node_name, flag)
-            elif degree_ir_channel4 != 0:
+                publisher_ir_info(pub, node_name + '_chatter', flag)
+            elif degree_ir_channel4 != 0 and (4 in ir_select_list):
                 flag = 4
-                publisher_ir_info(pub, node_name, flag)
+                publisher_ir_info(pub, node_name + '_chatter', flag)
 
 
         if flag == 1:
