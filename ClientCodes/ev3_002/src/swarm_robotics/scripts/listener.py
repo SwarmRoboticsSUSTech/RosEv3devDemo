@@ -41,9 +41,9 @@ def callback(data):
     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
     if int(data.data) in [1, 2, 3, 4]:
         ir_select_list.remove(int(data.data))
-    print('My ir_select_list is: ' + ir_select_list)
+    rospy.loginfo(rospy.get_caller_id() + ' ir_select_list is: ' + str(ir_select_list))
     # publisher(pub, 'ev3_00#', speed)
-    
+
 def main():
     # pub = rospy.Publisher('ev3_009_chatter', String, queue_size=1)
 
@@ -54,7 +54,7 @@ def main():
     # run simultaneously.
     rospy.init_node(node_name, anonymous=True)
 
-    rospy.Subscriber("chatter", String, callback, queue_size=1)   # laptop node
+    # rospy.Subscriber("chatter", String, callback, queue_size=1)   # laptop node
     rospy.Subscriber("ev3_001_chatter", String, callback, queue_size=1) # other robot node
     rospy.Subscriber("ev3_008_chatter", String, callback, queue_size=1) # other robot node
     rospy.Subscriber("ev3_009_chatter", String, callback, queue_size=1) # other robot node
@@ -62,14 +62,6 @@ def main():
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
 
-
-def publisher(pub, node_name, speed):
-    '''
-    publish its status informations, speed
-    '''
-    status_str = 'speed: ' + str(speed)
-    rospy.loginfo(status_str)
-    pub.publish(node_name + "'status: " + status_str)
 
 def publisher_ir_info(pub, node_name, ir_id):
     '''
@@ -83,7 +75,7 @@ def seeker(node_name):
     node_name: node name of itself
     '''
     flag = None
-    
+    degree = [0]
     while not ts.value():
         if flag is None:
             # Lock only once
@@ -94,9 +86,9 @@ def seeker(node_name):
             if degree_ir_channel1 != 0 and (1 in ir_select_list):
                 flag = 1
                 publisher_ir_info(pub, node_name + '_chatter', flag)
-            elif degree_ir_channel2 != 0 and (2 in ir_select_list):
-                flag = 2
-                publisher_ir_info(pub, node_name + '_chatter', flag)
+            # elif degree_ir_channel2 != 0 and (2 in ir_select_list):
+            #     flag = 2
+            #     publisher_ir_info(pub, node_name + '_chatter', flag)
             elif degree_ir_channel3 != 0 and (3 in ir_select_list):
                 flag = 3
                 publisher_ir_info(pub, node_name + '_chatter', flag)
@@ -121,7 +113,7 @@ def seeker(node_name):
             # No found
             degree_ir = 999
             distance_ir = 999
-        
+
         distance = us.value()/10
         print('degree:' + str(degree_ir))
         print('distcane_ir:' + str(distance_ir))
@@ -132,7 +124,7 @@ def seeker(node_name):
                 # No found
                 mB.run_to_rel_pos(position_sp=15, speed_sp=100)
                 mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
-                
+
             elif degree_ir < 0:
                 # Found
                 mB.run_to_rel_pos(position_sp=degree_ir, speed_sp=100)
@@ -146,7 +138,7 @@ def seeker(node_name):
                 # NO found
                 # direction = random.randint(0, 1)
                 # if direction == 0:
-                random_walk()
+                random_walk(degree)
                 # elif direction == 1:
                 #     mB.run_to_rel_pos(position_sp=-15, speed_sp=100)
                 #     mC.run_to_rel_pos(position_sp=15, speed_sp=100)
@@ -168,13 +160,23 @@ def seeker(node_name):
     mB.stop()
     mC.stop()
 
-def random_walk():
+def random_walk(degree):
     '''
     random walk
     TODO: random stop to wait
     '''
     mB.run_to_rel_pos(position_sp=15, speed_sp=100)
     mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
+    # if degree[0] < 360:
+    #     degree[0] += 15
+    #     mB.run_to_rel_pos(position_sp=15, speed_sp=100)
+    #     mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
+    # elif degree[0] > 360 and degree[0] < 720:
+    #     degree[0] += 15
+    #     mB.run_to_rel_pos(position_sp=-15, speed_sp=100)
+    #     mC.run_to_rel_pos(position_sp=15, speed_sp=100)
+    # elif degree[0] == 720:
+    #     degree[0] = 0
 
 if __name__ == '__main__':
     main()
