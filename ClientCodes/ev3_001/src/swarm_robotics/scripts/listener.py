@@ -43,11 +43,8 @@ def callback(data):
         ir_select_list.remove(int(data.data))
 
     rospy.loginfo(rospy.get_caller_id() + ' ir_select_list is: ' + str(ir_select_list))
-    # publisher(pub, 'ev3_00#', speed)
 
 def main():
-    # pub = rospy.Publisher('ev3_009_chatter', String, queue_size=1)
-
     # In ROS, nodes are uniquely named. If two nodes with the same
     # node are launched, the previous one is kicked off. The
     # anonymous=True flag means that rospy will choose a unique
@@ -135,19 +132,13 @@ def seeker(node_name):
                 # Found
                 mB.run_to_rel_pos(position_sp=degree_ir, speed_sp=100)
                 mC.run_to_rel_pos(position_sp=-degree_ir, speed_sp=100)
+            elif distance_ir > 20:
+                mB.run_to_rel_pos(position_sp=15, speed_sp=100)
+                mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
+                
         elif distance > 20:
             if degree_ir == 999 and distance_ir == 999:
-                # NO found
-                # direction = random.randint(0, 1)
-                # if direction == 0:
                 random_walk(degree)
-                # elif direction == 1:
-                #     mB.run_to_rel_pos(position_sp=-15, speed_sp=100)
-                #     mC.run_to_rel_pos(position_sp=15, speed_sp=100)
-                # run_time_random = random.randint(0, 3)
-                # mB.run_forever(speed_sp=100)
-                # mC.run_forever(speed_sp=100)
-                # sleep(run_time_random)
             elif degree_ir < 0:
                 # Found
                 mB.run_to_rel_pos(position_sp=degree_ir, speed_sp=100)
@@ -164,21 +155,19 @@ def seeker(node_name):
 
 def random_walk(degree):
     '''
-    random walk
-    TODO: random stop to wait
+    random walk like 8.
     '''
-    mB.run_to_rel_pos(position_sp=15, speed_sp=100)
-    mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
-    # if degree[0] < 360:
-    #     degree[0] += 15
-    #     mB.run_to_rel_pos(position_sp=15, speed_sp=100)
-    #     mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
-    # elif degree[0] >= 360 and degree[0] < 720:
-    #     degree[0] += 15
-    #     mB.run_to_rel_pos(position_sp=-15, speed_sp=100)
-    #     mC.run_to_rel_pos(position_sp=15, speed_sp=100)
-    # elif degree[0] == 720:
-    #     degree[0] = 0
+    if degree < 360:
+        mB.run_to_rel_pos(position_sp=15, speed_sp=100)
+        mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
+        return degree + 15
+    elif degree >= 360 and degree < 720:
+        mB.run_to_rel_pos(position_sp=-15, speed_sp=100)
+        mC.run_to_rel_pos(position_sp=15, speed_sp=100)
+        return degree + 15
+    elif degree == 720:
+        return 0
+    
 
 
 if __name__ == '__main__':
