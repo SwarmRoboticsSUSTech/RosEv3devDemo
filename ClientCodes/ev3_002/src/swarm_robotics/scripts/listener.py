@@ -138,6 +138,7 @@ def seeker(node_name):
         elif distance > 20:
             if degree_ir == 999 and distance_ir == 999:
                 degree = random_walk(degree)
+                rospy.loginfo(rospy.get_caller_id() + "degree is %s", str(degree))
             elif degree_ir < 0:
                 # Found
                 mB.run_to_rel_pos(position_sp=degree_ir, speed_sp=100)
@@ -166,7 +167,7 @@ def random_walk(degree):
         return degree + 15
     elif degree == 720:
         return 0
-    
+
 
 if __name__ == '__main__':
     main()
