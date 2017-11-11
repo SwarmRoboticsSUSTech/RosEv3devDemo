@@ -120,8 +120,8 @@ def seeker(node_name):
         if distance <= 20:
             if degree_ir == 999 and distance_ir == 999:
                 # No found
-                mB.run_to_rel_pos(position_sp=15, speed_sp=100)
-                mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
+                mB.run_to_rel_pos(position_sp=45, speed_sp=100)
+                mC.run_to_rel_pos(position_sp=-45, speed_sp=100)
 
             elif degree_ir < 0:
                 # Found
@@ -132,8 +132,8 @@ def seeker(node_name):
                 mB.run_to_rel_pos(position_sp=degree_ir, speed_sp=100)
                 mC.run_to_rel_pos(position_sp=-degree_ir, speed_sp=100)
             elif distance_ir > 20:
-                mB.run_to_rel_pos(position_sp=15, speed_sp=100)
-                mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
+                mB.run_to_rel_pos(position_sp=45, speed_sp=100)
+                mC.run_to_rel_pos(position_sp=-45, speed_sp=100)
 
         elif distance > 20:
             if degree_ir == 999 and distance_ir == 999:
@@ -158,12 +158,12 @@ def random_walk(degree):
     random walk like 8.
     '''
     if degree < 360:
-        mB.run_to_rel_pos(position_sp=15, speed_sp=100)
-        mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
+        mB.run_to_rel_pos(position_sp=45, speed_sp=100)
+        mC.run_to_rel_pos(position_sp=-45, speed_sp=100)
         return degree + 15
     elif degree >= 360 and degree < 720:
-        mB.run_to_rel_pos(position_sp=-15, speed_sp=100)
-        mC.run_to_rel_pos(position_sp=15, speed_sp=100)
+        mB.run_to_rel_pos(position_sp=-45, speed_sp=100)
+        mC.run_to_rel_pos(position_sp=45, speed_sp=100)
         return degree + 15
     elif degree == 720:
         return 0
