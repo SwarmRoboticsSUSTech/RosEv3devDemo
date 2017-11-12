@@ -26,8 +26,9 @@ ir.mode = 'IR-SEEK'
 
 units = us.units
 
-ir_select_list = [1, 2, 3, 4]
+ir_select_list = [2, 8, 9]
 node_name = 'ev3_001'
+node_id = 1
 pub = rospy.Publisher(node_name + '_chatter', String, queue_size=1)
 speed = 200
 
@@ -37,13 +38,24 @@ Kinds of messages:
  - str: stop for wait
 '''
 
-def callback(data):
+def callback(data, args):
+    '''
+    args[0]为发送消息的机器id
+    data.data为某台刚被发现的机器的id
+    node_id为本机的id
+    '''
     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
-    if int(data.data) in [1, 2, 3, 4]:
+    if int(data.data) in ir_select_list:
+        '''
+        如果有机器已经暴露。从待选择目标列表中删除
+        '''
         ir_select_list.remove(int(data.data))
-
+    if int(data.data) == node_id and args[0] in ir_select_list:
+        '''
+        如果某机器发现了本机，则将此机器的id从待选择目标列表中删除，防止二者循环追踪
+        '''
+        ir_select_list.remove(int(args[0]))
     rospy.loginfo(rospy.get_caller_id() + ' ir_select_list is: ' + str(ir_select_list))
-    # publisher(pub, 'ev3_00#', speed)
 
 def main():
     # In ROS, nodes are uniquely named. If two nodes with the same
@@ -54,9 +66,9 @@ def main():
     rospy.init_node(node_name, anonymous=True)
 
     # rospy.Subscriber("chatter", String, callback, queue_size=1)   # laptop node
-    rospy.Subscriber("ev3_002_chatter", String, callback, queue_size=1) # other robot node
-    rospy.Subscriber("ev3_008_chatter", String, callback, queue_size=1) # other robot node
-    rospy.Subscriber("ev3_009_chatter", String, callback, queue_size=1) # other robot node
+    rospy.Subscriber("ev3_002_chatter", String, callback, queue_size=1, callback_args=(2)) # other robot node
+    rospy.Subscriber("ev3_008_chatter", String, callback, queue_size=1, callback_args=(8)) # other robot node
+    rospy.Subscriber("ev3_009_chatter", String, callback, queue_size=1, callback_args=(9)) # other robot node
     seeker(node_name)
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
@@ -122,8 +134,9 @@ def seeker(node_name):
         if distance <= 20:
             if degree_ir == 999 and distance_ir == 999:
                 # No found
-                mB.run_to_rel_pos(position_sp=15, speed_sp=100)
-                mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
+                random_turn = random.getrandbits(1)
+                mB.run_to_rel_pos(position_sp=45*random_turn, speed_sp=100)
+                mC.run_to_rel_pos(position_sp=-45*random_turn, speed_sp=100)
 
             elif degree_ir < 0:
                 # Found
@@ -134,12 +147,15 @@ def seeker(node_name):
                 mB.run_to_rel_pos(position_sp=degree_ir, speed_sp=100)
                 mC.run_to_rel_pos(position_sp=-degree_ir, speed_sp=100)
             elif distance_ir > 20:
-                mB.run_to_rel_pos(position_sp=15, speed_sp=100)
-                mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
+                '''
+                may be lost its taget objects
+                '''
+                random_turn = random.getrandbits(1)
+                mB.run_to_rel_pos(position_sp=45*random_turn, speed_sp=100)
+                mC.run_to_rel_pos(position_sp=-45*random_turn, speed_sp=100)
 
         elif distance > 20:
             if degree_ir == 999 and distance_ir == 999:
-                # NO found
                 degree = random_walk(degree)
             elif degree_ir < 0:
                 # Found
@@ -149,6 +165,7 @@ def seeker(node_name):
                 # Found
                 mB.run_to_rel_pos(position_sp=degree_ir, speed_sp=100)
                 mC.run_to_rel_pos(position_sp=-degree_ir, speed_sp=100)
+            # run_time_length = distance_ir / 100
             mB.run_forever(speed_sp=100)
             mC.run_forever(speed_sp=100)
     mB.stop()
@@ -156,19 +173,19 @@ def seeker(node_name):
 
 def random_walk(degree):
     '''
-    random walk like 8.
+    random walk
     '''
     if degree < 360:
-        mB.run_to_rel_pos(position_sp=15, speed_sp=100)
-        mC.run_to_rel_pos(position_sp=-15, speed_sp=100)
+        mB.run_to_rel_pos(position_sp=45, speed_sp=100)
+        mC.run_to_rel_pos(position_sp=-45, speed_sp=100)
         return degree + 15
     elif degree >= 360 and degree < 720:
-        mB.run_to_rel_pos(position_sp=-15, speed_sp=100)
-        mC.run_to_rel_pos(position_sp=15, speed_sp=100)
+        mB.run_to_rel_pos(position_sp=-45, speed_sp=100)
+        mC.run_to_rel_pos(position_sp=45, speed_sp=100)
         return degree + 15
     elif degree == 720:
         return 0
-    
+
 
 
 if __name__ == '__main__':
